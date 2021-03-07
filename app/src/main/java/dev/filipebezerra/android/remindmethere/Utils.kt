@@ -37,6 +37,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.core.app.NotificationCompat
@@ -46,10 +47,12 @@ import androidx.core.content.res.ResourcesCompat
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.core.app.NotificationManagerCompat
 import dev.filipebezerra.android.remindmethere.BuildConfig
 import dev.filipebezerra.android.remindmethere.R
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
+import com.google.android.material.color.MaterialColors
 import timber.log.Timber
 
 fun EditText.requestFocusWithKeyboard() {
@@ -112,12 +115,17 @@ fun sendNotification(context: Context, message: String, latLng: LatLng) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
         && notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID) == null
     ) {
-        val name = context.getString(R.string.app_name)
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,
-            name,
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
+            context.getString(R.string.app_name),
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            enableLights(true)
+            lightColor = Color.BLUE
+            enableVibration(true)
+            description = context.getString(R.string.notification_channel_description)
+            setShowBadge(false)
+        }
 
         Timber.d("Targeting Android O or higher: Creating channel ${channel.name}")
         notificationManager.createNotificationChannel(channel)
@@ -136,6 +144,10 @@ fun sendNotification(context: Context, message: String, latLng: LatLng) {
         .setContentTitle(message)
         .setContentIntent(notificationPendingIntent)
         .setAutoCancel(true)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .setCategory(NotificationCompat.CATEGORY_REMINDER)
+        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+        .setVibrate(longArrayOf(100, 200, 100, 200))
         .build()
 
     notificationManager.notify(getUniqueId(), notification)

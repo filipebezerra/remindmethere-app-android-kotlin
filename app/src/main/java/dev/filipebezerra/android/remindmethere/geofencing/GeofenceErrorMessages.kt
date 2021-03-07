@@ -5,6 +5,11 @@ import dev.filipebezerra.android.remindmethere.R
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.GeofenceStatusCodes
 
+/**
+ * Use [GeofenceStatusCodes] to translate to human-readable error messages.
+ *
+ * **See also: [GeofenceStatusCodes source](https://developers.google.com/android/reference/com/google/android/gms/location/GeofenceStatusCodes)**
+ */
 object GeofenceErrorMessages {
     fun getErrorString(context: Context, e: Exception): String {
         return if (e is ApiException) {

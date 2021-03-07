@@ -42,6 +42,7 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
+import dev.filipebezerra.android.remindmethere.util.ext.getHumanReadableErrorMessage
 
 class ReminderRepository(private val context: Context) {
 
@@ -78,7 +79,7 @@ class ReminderRepository(private val context: Context) {
                     saveAll(getAll() + reminder)
                     success()
                 }
-                .addOnFailureListener { failure(GeofenceErrorMessages.getErrorString(context, it)) }
+                .addOnFailureListener { failure(it.getHumanReadableErrorMessage(context)) }
         }
     }
 
@@ -104,7 +105,10 @@ class ReminderRepository(private val context: Context) {
     private fun buildGeofencingRequest(geofence: Geofence): GeofencingRequest {
         return GeofencingRequest.Builder()
             .addGeofence(geofence)
-            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            // The notification behavior. It's a bit-wise of GeofencingRequest.INITIAL_TRIGGER_ENTER
+            // and/or GeofencingRequest.INITIAL_TRIGGER_EXIT and/or GeofencingRequest.INITIAL_TRIGGER_DWELL.
+            // When initialTrigger is set to 0 (setInitialTrigger(0)), initial trigger would be disabled.
+            .setInitialTrigger(0)
             .build()
     }
 
@@ -113,9 +117,12 @@ class ReminderRepository(private val context: Context) {
         success: () -> Unit,
         failure: (error: String) -> Unit
     ) {
-        val list = getAll() - reminder
-        saveAll(list)
-        success()
+        geofencingClient.removeGeofences(geofencePendingIntent)
+            .addOnSuccessListener {
+                saveAll(getAll() - reminder)
+                success()
+            }
+            .addOnFailureListener { failure(it.getHumanReadableErrorMessage(context)) }
     }
 
     private fun saveAll(list: List<Reminder>) {

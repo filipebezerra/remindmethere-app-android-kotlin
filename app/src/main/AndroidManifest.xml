@@ -5,12 +5,33 @@
     >
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--
+    The FINE_LOCATION permission is required for geofencing functionality to work.
+    -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!--
     The BACKGROUND_LOCATION permission is required for geofencing functionality to work on Q+
     -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!--
+    Solves FATAL EXCEPTION:
+        Caused by: java.lang.SecurityException: Neither user ? nor current process has
+        android.permission.WAKE_LOCK.
+        See also: https://github.com/bkonyi/FlutterGeofencing/pull/16
+
+        In fact on location-samples/Geofencing this permission is added in the sample app
+        See also: https://github.com/android/location-samples/blob/master/Geofencing/app/src/main/AndroidManifest.xml#L20
+    -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!--
+    Allows an application to receive the Intent.ACTION_BOOT_COMPLETED that is broadcast after the system finishes booting
+    See also: https://developer.android.com/reference/android/Manifest.permission.html#RECEIVE_BOOT_COMPLETED
+    See also: https://stackoverflow.com/a/35268699/4107440
+    -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
         android:name=".ReminderApp"
